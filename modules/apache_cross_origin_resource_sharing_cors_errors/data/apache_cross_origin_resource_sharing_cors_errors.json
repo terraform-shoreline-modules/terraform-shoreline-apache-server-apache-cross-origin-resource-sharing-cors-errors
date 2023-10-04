@@ -1,0 +1,126 @@
+{
+  "name": "apache_cross_origin_resource_sharing_cors_errors",
+  "description": "Cross-Origin Resource Sharing (CORS) is a security feature in web browsers that restricts web pages from making requests to a different domain than the one that served the web page. When a website tries to make a cross-origin request, the browser will block the request by default. The Apache server is commonly used to serve web pages, and sometimes it can be misconfigured, causing CORS errors to occur. These errors can prevent certain web pages or resources from loading correctly, resulting in a poor user experience.",
+  "params": [
+    {
+      "name": "DOMAIN_NAME",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_APACHE_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "RESOURCE_URL",
+      "value": ""
+    },
+    {
+      "name": "ORIGIN",
+      "value": ""
+    },
+    {
+      "name": "APACHE_ERROR_LOG",
+      "value": ""
+    },
+    {
+      "name": "APACHE_CONF_DIR",
+      "value": ""
+    },
+    {
+      "name": "_VIRTUALHOST",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Apache Cross-Origin Resource Sharing (CORS) Errors\nCross-Origin Resource Sharing (CORS) is a security feature in web browsers that restricts web pages from making requests to a different domain than the one that served the web page. When a website tries to make a cross-origin request, the browser will block the request by default. The Apache server is commonly used to serve web pages, and sometimes it can be misconfigured, causing CORS errors to occur. These errors can prevent certain web pages or resources from loading correctly, resulting in a poor user experience."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Apache configuration file for any CORS-related directives"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `grep -i -r \"Header set Access-Control-Allow-Origin\" ${APACHE_CONF_DIR}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Verify that the CORS headers are being set correctly for the requested resource"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -H \"Origin: ${ORIGIN}\" -I ${RESOURCE_URL}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Apache error log for any CORS-related errors or warnings"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tail -f ${APACHE_ERROR_LOG}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Verify that the CORS headers are being sent from the server to the client"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -H \"Origin: ${ORIGIN}\" -I ${RESOURCE_URL} | grep -i \"Access-Control-Allow-Origin\"`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the response headers for any other relevant information"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -I ${RESOURCE_URL}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Add the appropriate Access-Control-Allow-Origin header to the server response to allow cross-origin requests from the specific domains that need to access the server."
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_add_access_control_header($DOMAIN_NAME, $PATH_TO_APACHE_CONFIG_FILE, $_VIRTUALHOST)"
+    }
+  ]
+}
